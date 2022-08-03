@@ -1,11 +1,11 @@
 <?php
 
+$pdo = require_once('./includes/connexionBDD.php');
+
 const ERROR_REQUIRED            = "Ce champs est obligatoire";
 const ERROR_TITLE_TOO_SHORT     = "Le titre doit faire au minimum 10 caractères";
 const ERROR_CONTENT_TOO_SHORT   = "Le contenu doit faire au minimum 20 caractères";
 const ERROR_IMAGE_URL           = "L'image doit être une url valide";
-
-$filename = __DIR__ . '/data/articles.json';
 
 $errors = [
     'title'     => '',
@@ -13,11 +13,6 @@ $errors = [
     'image'     => '',
     'category'  => ''
 ];
-
-if (file_exists($filename)) {
-    $articles = json_decode(file_get_contents($filename), true) ?? "";
-}
-
 
 $_GET = filter_input_array(INPUT_GET, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $id = $_GET['id'] ?? "";

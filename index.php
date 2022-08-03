@@ -1,17 +1,18 @@
 <?php
 
+$pdo = require_once('./includes/connexionBDD.php');
 //récupérer articles
-$filename = __DIR__ . '/data/articles.json';
-$articles = [];
+
+$statement = $pdo->prepare('SELECT * FROM articles');
+$statement->execute();
+
+$articles = $statement->fetchAll();
 $categories = [];
 
 $_GET = filter_input_array(INPUT_GET, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $selectedCat = $_GET['cat'] ?? "";
 
-
-if (file_exists($filename)) {
-
-    $articles = json_decode(file_get_contents($filename), true) ?? [];
+if (count($articles)) {
 
     $cattmp = array_map(fn ($e) => $e['category'], $articles);
 
@@ -38,6 +39,7 @@ if (file_exists($filename)) {
         return $acc;
     }, []);
 }
+
 
 
 

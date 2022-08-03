@@ -1,5 +1,7 @@
 <?php
 
+require('./includes/connexionBDD.php');
+
 $filename = __DIR__ . '/data/articles.json';
 $articles = [];
 
