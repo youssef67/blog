@@ -14,19 +14,25 @@ $errors = [
     'category'  => ''
 ];
 
+$category = '';
+
 $_GET = filter_input_array(INPUT_GET, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $id = $_GET['id'] ?? "";
 
 if ($id) {
 
-    $articleIndex = array_search($id, array_column($articles, 'id'));
+    $statement = $pdo->prepare('SELECT * FROM articles WHERE id = :id');
+    $statement->bindValue(':id', $id);
+    $statement->execute();
 
-    $article = $articles[$articleIndex];
+    $article = $statement->fetch(PDO::FETCH_ASSOC);
 
+    $idArticle = $article['id'] ?? '';
     $title = $article['title'] ?? '';
     $image = $article['image'] ?? '';
     $category = $article['category'] ?? '';
     $content = $article['content'] ?? '';
+
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -77,22 +83,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!count(array_filter($errors))) {
         if ($id) {
-            $articles[$articleIndex]['title'] = $title;
-            $articles[$articleIndex]['image'] = $image;
-            $articles[$articleIndex]['category'] = $category;
-            $articles[$articleIndex]['content'] = $content;
+
+            $statement = $pdo->prepare("UPDATE articles SET 
+                title = :title,
+                image = :image, 
+                category = :category,
+                content = :content
+                WHERE id = :id
+            ");
+
+            $statement->bindValue(':id', $id);
+            $statement->bindValue(':title', $title);
+            $statement->bindValue(':image', $image);
+            $statement->bindValue(':category', $category);
+            $statement->bindValue(':content', $content);
+
+            $statement->execute();
         } else {
-            $articles = [...$articles, [
-                'id'   => time(),
-                'title' => $title,
-                'image' => $image,
-                'category' => $category,
-                'content' => $content
-            ]];
+            $statement = $pdo->prepare("INSERT INTO articles 
+            (title, image, category,content) VALUES (
+                :title,
+                :image, 
+                :category, 
+                :content
+            )");
+
+            $statement->bindValue(':title', $title);
+            $statement->bindValue(':image', $image);
+            $statement->bindValue(':category', $category);
+            $statement->bindValue(':content', $content);
+
+            $statement->execute();
         }
-
-        file_put_contents($filename, json_encode($articles));
-
         header('location: /');
     } else {
         var_dump('pas ok');
@@ -108,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <?php require_once 'includes/head.php' ?>
     <link rel="stylesheet" href="/public/css/form-article.css">
-    <title><?= $id ? 'Modifier' : 'Créer' ?> un article'</title>
+    <title><?= $id ? 'Modifier' : 'Créer' ?> un article</title>
 </head>
 
 <body>
@@ -136,8 +158,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label for="category">Catégories</label>
                         <select name="category" id="category" value="<?= $category ?? "" ?>">
                             <option <?= !$category || $category === 'technologie' ? 'selected' : '' ?> value="technologie">Technologie</option>
-                            <option <?= $category === 'nature' ? 'selected' : '' ?> value="nature">Nature</option>
-                            <option <?= $category === 'politique' ? 'selected' : '' ?> value="politique">Politique</option>
+                            <option <?= !$category || $category === 'nature' ? 'selected' : '' ?> value="nature">Nature</option>
+                            <option <?= !$category || $nature === 'politique' ? 'selected' : '' ?> value="politique">Politique</option>
                         </select>
                         <p class="text-danger">
                             <?= $errors['category'] ?? "" ?>
