@@ -1,6 +1,6 @@
 <?php
 
-$pdo = require_once('./includes/connexionBDD.php');
+$articleDB = require_once('./database/models/ArticleDB.php');
 
 $articles = [];
 
@@ -10,13 +10,7 @@ $id     = $_GET['id'] ?? "";
 if (!$id) {
     header('Location: /');
 } else {
-
-    $statement = $pdo->prepare("SELECT * FROM articles WHERE id = :id");
-    $statement->bindValue(':id', $id);
-
-    $statement->execute();
-
-    $article = $statement->fetch(PDO::FETCH_ASSOC);
+    $article = $articleDB->fetchOne($id);
 }
 
 

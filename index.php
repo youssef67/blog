@@ -1,12 +1,9 @@
 <?php
 
-$pdo = require_once('./includes/connexionBDD.php');
-//récupérer articles
+$articleDB = require_once('./database/models/ArticleDB.php');
 
-$statement = $pdo->prepare('SELECT * FROM articles');
-$statement->execute();
 
-$articles = $statement->fetchAll();
+$articles = $articleDB->fetchAll();
 $categories = [];
 
 $_GET = filter_input_array(INPUT_GET, FILTER_SANITIZE_FULL_SPECIAL_CHARS);

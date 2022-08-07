@@ -1,6 +1,6 @@
 <?php
 
-$pdo = require_once('./includes/connexionBDD.php');
+$articleDB = require_once('./database/models/ArticleDB.php');
 
 const ERROR_REQUIRED            = "Ce champs est obligatoire";
 const ERROR_TITLE_TOO_SHORT     = "Le titre doit faire au minimum 10 caractères";
@@ -13,7 +13,6 @@ $errors = [
     'image'     => '',
     'category'  => ''
 ];
-
 $category = '';
 
 $_GET = filter_input_array(INPUT_GET, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
@@ -21,18 +20,13 @@ $id = $_GET['id'] ?? "";
 
 if ($id) {
 
-    $statement = $pdo->prepare('SELECT * FROM articles WHERE id = :id');
-    $statement->bindValue(':id', $id);
-    $statement->execute();
-
-    $article = $statement->fetch(PDO::FETCH_ASSOC);
+    $article = $articleDB->fetchOne($id);
 
     $idArticle = $article['id'] ?? '';
     $title = $article['title'] ?? '';
     $image = $article['image'] ?? '';
     $category = $article['category'] ?? '';
     $content = $article['content'] ?? '';
-
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -48,72 +42,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]
     ]);
 
-    $title = $_POST['title'] ?? '';
-    $image = $_POST['image'] ?? '';
-    $category = $_POST['category'] ?? '';
-    $content = $_POST['content'] ?? '';
+    $article = [...$_POST];
 
     // Gestion erreurs
 
     //Titre
-    if (!$title) {
+    if (!$article['title']) {
         $errors['title'] = ERROR_REQUIRED;
-    } elseif (mb_strlen($title) < 10) {
+    } elseif (mb_strlen($article['title']) < 10) {
         $errors['title'] = ERROR_TITLE_TOO_SHORT;
     }
 
     // Image
-    if (!$image) {
+    if (!$article['image']) {
         $errors['image'] = ERROR_REQUIRED;
-    } elseif (!filter_var($image, FILTER_VALIDATE_URL)) {
+    } elseif (!filter_var($article['image'], FILTER_VALIDATE_URL)) {
         $errors['image'] = ERROR_IMAGE_URL;
     }
 
     // Categorie
-    if (!$category) {
+    if (!$article['category']) {
         $errors['category'] = ERROR_REQUIRED;
     }
 
     // Contenu
-    if (!$content) {
+    if (!$article['content']) {
         $errors['content'] = ERROR_REQUIRED;
-    } elseif (mb_strlen($content) < 20) {
+    } elseif (mb_strlen($article['content']) < 20) {
         $errors['content'] = ERROR_CONTENT_TOO_SHORT;
     }
 
     if (!count(array_filter($errors))) {
         if ($id) {
-
-            $statement = $pdo->prepare("UPDATE articles SET 
-                title = :title,
-                image = :image, 
-                category = :category,
-                content = :content
-                WHERE id = :id
-            ");
-
-            $statement->bindValue(':id', $id);
-            $statement->bindValue(':title', $title);
-            $statement->bindValue(':image', $image);
-            $statement->bindValue(':category', $category);
-            $statement->bindValue(':content', $content);
-
-            $statement->execute();
+            $articleDB->updateOne(['id' => $id, ...$article]); 
         } else {
-            $statement = $pdo->prepare("INSERT INTO articles 
-            (title, image, category,content) VALUES (
-                :title,
-                :image, 
-                :category, 
-                :content
-            )");
-
-            $statement->bindValue(':title', $title);
-            $statement->bindValue(':image', $image);
-            $statement->bindValue(':category', $category);
-            $statement->bindValue(':content', $content);
-
-            $statement->execute();
+            $articleDB->createOne($article);
         }
         header('location: /');
     } else {
