@@ -1,7 +1,7 @@
 <?php
 
 try {
-    $bdd = new PDO("mysql:host=localhost;dbname=blog", "root", "kurosaki", [
+    $pdo = new PDO("mysql:host=localhost;dbname=blog", "root", "kurosaki", [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
     ]);
@@ -9,4 +9,4 @@ try {
     echo $e->getMessage();
 }
 
-return $bdd;
+return $pdo;

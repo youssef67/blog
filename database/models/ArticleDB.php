@@ -1,7 +1,4 @@
 <?php
-
-$pdo = require_once './database/database.php';
-
 class ArticleDB
 {
     private PDO $pdo;
