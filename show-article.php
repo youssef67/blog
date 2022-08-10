@@ -1,6 +1,9 @@
 <?php
-
+$pdo = require_once __DIR__ . '/database/database.php';
 $articleDB = require_once('./database/models/ArticleDB.php');
+require_once __DIR__ . '/database/security.php';
+
+$currentUser = isLoggedIn();
 
 $articles = [];
 
@@ -12,9 +15,6 @@ if (!$id) {
 } else {
     $article = $articleDB->fetchOne($id);
 }
-
-
-
 ?>
 
 <!DOCTYPE html>
@@ -36,10 +36,19 @@ if (!$id) {
                 <h1 class="article-title"><?= $article['title'] ?></h1>
                 <div class="separator"></div>
                 <p class="article-content"><?= $article['content'] ?></p>
-                <div class="action">
-                    <a class="btn-primary btn" href="/form-article.php?id=<?= $article['id'] ?>">Editer l'article</a>
-                    <a class="btn-danger btn" href="/delete-article.php?id=<?= $article['id'] ?>">Supprimer l'article</a>
-                </div>
+                <?php if ($article['author']) : ?>
+                    <div class="article-author">
+                        <p class="article-author">
+                            <?= $article['firstname'] . ' ' . $article['lastname'] ?>
+                        </p>
+                    </div>
+                <?php endif; ?>
+                <?php if ($currentUser['id'] === $article['author']) : ?>
+                    <div class="action">
+                        <a class="btn-primary btn" href="/form-article.php?id=<?= $article['id'] ?>">Editer l'article</a>
+                        <a class="btn-danger btn" href="/delete-article.php?id=<?= $article['id'] ?>">Supprimer l'article</a>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
         <?php require_once 'includes/footer.php' ?>

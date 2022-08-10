@@ -3,7 +3,7 @@
 function isLoggedIn() {
 
     global $pdo;
-    $sessionId = $_COOKIE['sessionId'];
+    $sessionId = $_COOKIE['sessionId'] ?? '';
 
     if ($sessionId) {
         $statementSession = $pdo->prepare('SELECT * FROM session WHERE id=:id');

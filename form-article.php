@@ -1,7 +1,13 @@
 <?php
-
+$pdo = require_once __DIR__ . '/database/database.php';
 $articleDB = require_once('./database/models/ArticleDB.php');
+require_once __DIR__ . '/database/security.php';
 
+$currentUser = isLoggedIn();
+
+if (!$currentUser) {
+    header('Location: /');
+}
 const ERROR_REQUIRED            = "Ce champs est obligatoire";
 const ERROR_TITLE_TOO_SHORT     = "Le titre doit faire au minimum 10 caractères";
 const ERROR_CONTENT_TOO_SHORT   = "Le contenu doit faire au minimum 20 caractères";
@@ -21,6 +27,10 @@ $id = $_GET['id'] ?? "";
 if ($id) {
 
     $article = $articleDB->fetchOne($id);
+
+    if ($article['author'] !== $currentUser['id']) {
+        header('Location: /');
+    }
 
     $idArticle = $article['id'] ?? '';
     $title = $article['title'] ?? '';
@@ -74,9 +84,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!count(array_filter($errors))) {
         if ($id) {
-            $articleDB->updateOne(['id' => $id, ...$article]); 
+            $articleDB->updateOne(['id' => $id, ...$article, 'author' => $currentUser['id']]); 
         } else {
-            $articleDB->createOne($article);
+            $articleDB->createOne([...$article, 'author' => $currentUser['id']]);
         }
         header('location: /');
     } else {

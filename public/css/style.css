@@ -131,6 +131,7 @@ header {
     display: flex;
     margin: 0;
     flex-flow: row;
+    align-items: center;
 }
 
 .header-menu li {
@@ -152,6 +153,24 @@ header {
     font-weight: bold;
     font-size: 2rem;
     color: var(--text-color-light);
+}
+
+li.header-profil {
+    font-weight: 700;
+    background-color: var(--dark);
+    border-radius: 50%;
+    height: 40px;
+    width: 40px;
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+}
+
+li.header-profil:hover {
+    background-color: var(--dark);
+
 }
 
 /* footer */

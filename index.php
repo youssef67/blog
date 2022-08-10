@@ -6,6 +6,7 @@ $articleDB = require_once('./database/models/ArticleDB.php');
 
 $currentUser = isLoggedIn();
 $articles = $articleDB->fetchAll();
+
 $categories = [];
 
 $_GET = filter_input_array(INPUT_GET, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
@@ -79,6 +80,11 @@ if (count($articles)) {
                                             <div class="img-container" style="background-image: url(<?= $a['image'] ?>);"></div>
                                         </div>
                                         <h3><?= $a['title'] ?></h3>
+                                        <?php if ($a['author']): ?>
+                                            <div class="article-author">
+                                                <p><?= $a['firstname'] . ' ' . $a['lastname'] ?></p>
+                                            </div>
+                                        <?php endif; ?>
                                     </a>
                                 <?php endforeach; ?>
                             </div>

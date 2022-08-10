@@ -1,29 +1,26 @@
 <?php
 
-$articleDB = require_once('./database/models/ArticleDB.php');
+$pdo = require_once __DIR__ . '/database/database.php';
+
+$session = $_COOKIE['sessionId'] ?? '';
+
+if ($session) {
+
+    $statementSession = $pdo->prepare('DELETE FROM session WHERE id = :id');
+    $statementSession->bindValue(':id', $session);
+    $statementSession->execute();
+
+    setcookie('sessionId', $session, time() - 3600);
+
+    header('Location: /');
+}
+
+
+
+
 
 
 
 
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <?php require_once 'includes/head.php' ?>
-    <title>logout</title>
-</head>
-
-<body>
-    <div class="container">
-        <?php require_once 'includes/header.php' ?>
-        <div class="content">
-        
-        </div>
-        <?php require_once 'includes/footer.php' ?>
-    </div>
-
-</body>
-
-</html>
